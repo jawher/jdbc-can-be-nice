@@ -20,9 +20,6 @@ public class JdbcCanBeNice {
 		return new ConnectionProvider() {
 
 			public Connection get() throws SQLException {
-				System.out
-						.println("JdbcCanBeNice.driverManagerConnectionProvider(...).new ConnectionProvider() {...}.get("
-								+ driverClassName + ")");
 				try {
 					Class.forName(driverClassName);
 				} catch (ClassNotFoundException e) {
@@ -66,8 +63,6 @@ public class JdbcCanBeNice {
 	public static <T> T doWithConnection(JdbcAction<T> action,
 			ConnectionProvider connectionProvider) {
 		try {
-			System.out
-					.println("JdbcCanBeNice.doWithConnection(" + action + ")");
 			return action.doWithConnection(connectionProvider.get());
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
