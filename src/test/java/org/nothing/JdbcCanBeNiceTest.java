@@ -5,7 +5,11 @@ import static org.nothing.JdbcCanBeNice.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 import static org.mockito.Mockito.*;
@@ -182,4 +186,287 @@ public class JdbcCanBeNiceTest {
 			fail("Shouldn't happen");
 		}
 	}
+
+	@Test
+	public void testSqlUpdateAndReturnKey() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		PreparedStatement preparedStatement = mock(PreparedStatement.class);
+		ResultSet resultSet = mock(ResultSet.class);
+		String sql = "jdbc.can.be.nice";
+
+		try {
+			when(resultSet.getObject(1)).thenReturn(82);
+			when(preparedStatement.getGeneratedKeys()).thenReturn(resultSet);
+			when(
+					connection.prepareStatement(sql,
+							Statement.RETURN_GENERATED_KEYS)).thenReturn(
+					preparedStatement);
+			ChainableJdbcAction<Number> action = sqlUpdateAndReturnKey(sql, 1,
+					true, "string");
+			Number generatedKey = doWithConnection(action, connectionProvider);
+
+			verify(connection).prepareStatement(sql,
+					Statement.RETURN_GENERATED_KEYS);
+			verify(preparedStatement).setObject(1, 1);
+			verify(preparedStatement).setObject(2, true);
+			verify(preparedStatement).setObject(3, "string");
+			verify(preparedStatement).executeUpdate();
+			verify(preparedStatement).getGeneratedKeys();
+			verify(resultSet).next();
+			verify(resultSet).getObject(1);
+			assertEquals(82, generatedKey);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
+	@Test
+	public void testSqlQuery() {
+		class Person {
+			private Integer id;
+			private String name;
+
+			public Person(Integer id, String name) {
+				super();
+				this.id = id;
+				this.name = name;
+			}
+
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + ((id == null) ? 0 : id.hashCode());
+				result = prime * result
+						+ ((name == null) ? 0 : name.hashCode());
+				return result;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				if (getClass() != obj.getClass())
+					return false;
+				Person other = (Person) obj;
+				if (id == null) {
+					if (other.id != null)
+						return false;
+				} else if (!id.equals(other.id))
+					return false;
+				if (name == null) {
+					if (other.name != null)
+						return false;
+				} else if (!name.equals(other.name))
+					return false;
+				return true;
+			}
+
+			@Override
+			public String toString() {
+				return "Person [id=" + id + ", name=" + name + "]";
+			}
+
+		}
+
+		final RowMapper<Person> personMapper = new RowMapper<Person>() {
+			public Person mapRow(ResultSet resultSet, int row)
+					throws SQLException {
+				return new Person(resultSet.getInt("id"), resultSet
+						.getString("name"));
+			}
+		};
+
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		PreparedStatement preparedStatement = mock(PreparedStatement.class);
+		ResultSet resultSet = mock(ResultSet.class);
+		String sql = "jdbc.can.be.nice";
+		List<Person> expectedPersons = Arrays.asList(new Person(82, "a"),
+				new Person(1, "b"));
+
+		try {
+			when(resultSet.next()).thenReturn(true, true, false);
+			when(resultSet.getInt("id")).thenReturn(82, 1);
+			when(resultSet.getString("name")).thenReturn("a", "b");
+
+			when(preparedStatement.executeQuery()).thenReturn(resultSet);
+			when(connection.prepareStatement(sql))
+					.thenReturn(preparedStatement);
+			ChainableJdbcAction<List<Person>> action = sqlQuery(sql,
+					personMapper, 1, true, "string");
+			List<Person> persons = doWithConnection(action, connectionProvider);
+			verify(connection).prepareStatement(sql);
+			verify(preparedStatement).setObject(1, 1);
+			verify(preparedStatement).setObject(2, true);
+			verify(preparedStatement).setObject(3, "string");
+			verify(preparedStatement).executeQuery();
+			assertEquals(expectedPersons, persons);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
+	@Test
+	public void testChainig1() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		JdbcAction<Integer> action1 = mock(JdbcAction.class);
+		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
+		JdbcAction<String> action3 = mock(JdbcAction.class);
+
+		ChainableJdbcAction<Integer> action = sqlMakeChainable(action1)
+				.andThen(action2).andThen(action3);
+		try {
+			when(action1.doWithConnection(connection)).thenReturn(82);
+			when(action2.doWithConnection(connection)).thenReturn(true);
+			when(action3.doWithConnection(connection)).thenReturn("jdbc");
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+
+		try {
+			int res = doWithConnection(action, connectionProvider);
+
+			verify(action1).doWithConnection(connection);
+			verify(action2).doWithConnection(connection);
+			verify(action3).doWithConnection(connection);
+			assertEquals(82, res);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
+	@Test
+	public void testChainig2() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		JdbcAction<Integer> action1 = mock(JdbcAction.class);
+		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
+		JdbcAction<String> action3 = mock(JdbcAction.class);
+
+		ChainableJdbcAction<Boolean> action = sqlMakeChainable(action1)
+				.andReturn(action2).andThen(action3);
+		try {
+			when(action1.doWithConnection(connection)).thenReturn(82);
+			when(action2.doWithConnection(connection)).thenReturn(true);
+			when(action3.doWithConnection(connection)).thenReturn("jdbc");
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+
+		try {
+
+			Boolean res = doWithConnection(action, connectionProvider);
+
+			verify(action1).doWithConnection(connection);
+			verify(action2).doWithConnection(connection);
+			verify(action3).doWithConnection(connection);
+			assertTrue(res);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
+	@Test
+	public void testChainig3() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		JdbcAction<Integer> action1 = mock(JdbcAction.class);
+		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
+		JdbcAction<String> action3 = mock(JdbcAction.class);
+
+		ChainableJdbcAction<String> action = sqlMakeChainable(action1).andThen(
+				action2).andReturn(action3);
+		try {
+			when(action1.doWithConnection(connection)).thenReturn(82);
+			when(action2.doWithConnection(connection)).thenReturn(true);
+			when(action3.doWithConnection(connection)).thenReturn("jdbc");
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+
+		try {
+
+			String res = doWithConnection(action, connectionProvider);
+
+			verify(action1).doWithConnection(connection);
+			verify(action2).doWithConnection(connection);
+			verify(action3).doWithConnection(connection);
+			assertEquals("jdbc", res);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+	
+	@Test
+	public void testChainig4() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		JdbcAction<Integer> action1 = mock(JdbcAction.class);
+		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
+		JdbcAction<String> action3 = mock(JdbcAction.class);
+
+		ChainableJdbcAction<String> action = sqlMakeChainable(action1).andReturn(
+				action2).andReturn(action3);
+		try {
+			when(action1.doWithConnection(connection)).thenReturn(82);
+			when(action2.doWithConnection(connection)).thenReturn(true);
+			when(action3.doWithConnection(connection)).thenReturn("jdbc");
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+
+		try {
+
+			String res = doWithConnection(action, connectionProvider);
+
+			verify(action1).doWithConnection(connection);
+			verify(action2).doWithConnection(connection);
+			verify(action3).doWithConnection(connection);
+			assertEquals("jdbc", res);
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
 }
