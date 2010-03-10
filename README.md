@@ -15,7 +15,7 @@ You need a Java 5 (or newer) environment and Maven 2.0.9 (or newer) installed:
     Default locale: en_US, platform encoding: UTF-8
     OS name: "linux" version: "2.6.31-12-generic" arch: "i386" Family: "unix"
 
-You should now be able to do a full build of `neo4j-resources`:
+You should now be able to do a full build of `jdbc-can-be-nice`:
 
     $ git clone git://github.com/jawher/jdbc-can-be-nice.git
     $ cd jdbc-can-be-nice
