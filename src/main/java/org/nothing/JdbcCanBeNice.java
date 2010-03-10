@@ -415,4 +415,16 @@ public class JdbcCanBeNice {
 		};
 	}
 
+	public static <T> RowMapper<T> singleColumnRowMapper(
+			final Class<T> columnClass) {
+		return new RowMapper<T>() {
+
+			public T mapRow(ResultSet resultSet, int row) throws SQLException {
+				Object columnValue = resultSet.getObject(1);
+				return columnClass.cast(columnValue);
+			}
+		};
+
+	}
+
 }
