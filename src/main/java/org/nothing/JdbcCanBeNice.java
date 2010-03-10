@@ -404,7 +404,7 @@ public class JdbcCanBeNice {
 				try {
 					return action.doWithConnection(connection);
 				} catch (SQLException e) {
-					return null;
+					return resInCasOfException;
 				}
 			}
 
