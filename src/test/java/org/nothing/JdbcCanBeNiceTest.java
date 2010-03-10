@@ -115,6 +115,7 @@ public class JdbcCanBeNiceTest {
 			ChainableJdbcAction<Object> txJdbcAction = sqlTx(failingJdbcAction);
 			try {
 				doWithConnection(txJdbcAction, connectionProvider);
+				fail("Shouldn't happen");
 			} catch (RuntimeException e) {
 				// expected
 			}
