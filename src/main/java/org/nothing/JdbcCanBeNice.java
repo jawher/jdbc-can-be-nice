@@ -239,13 +239,12 @@ public class JdbcCanBeNice {
 				}
 				try {
 					return ps.executeUpdate();
-				} catch (SQLException e) {
+				} finally {
 					try {
 						ps.close();
 					} catch (SQLException e1) {
 
 					}
-					throw e;
 				}
 			}
 
@@ -293,18 +292,23 @@ public class JdbcCanBeNice {
 				for (int i = 0; i < params.length; i++) {
 					ps.setObject(i + 1, params[i]);
 				}
+				ResultSet generatedKeys = null;
 				try {
 					ps.executeUpdate();
-					ResultSet generatedKeys = ps.getGeneratedKeys();
+					generatedKeys = ps.getGeneratedKeys();
 					generatedKeys.next();
 					return (Number) generatedKeys.getObject(1);
-				} catch (SQLException e) {
+				} finally {
+					try {
+						if (generatedKeys != null) {
+							generatedKeys.close();
+						}
+					} catch (SQLException e1) {
+					}
 					try {
 						ps.close();
 					} catch (SQLException e1) {
-
 					}
-					throw e;
 				}
 			}
 
