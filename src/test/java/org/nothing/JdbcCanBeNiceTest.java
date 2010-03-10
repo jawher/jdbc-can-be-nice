@@ -174,14 +174,17 @@ public class JdbcCanBeNiceTest {
 		} catch (SQLException e) {
 			fail("Shouldn't happen");
 		}
-		ChainableJdbcAction<Object> dontThrowSqlExceptionAction = dontThrowSqlException(action);
+		ChainableJdbcAction<Object> dontThrowSqlExceptionAction = dontThrowSqlException(
+				action, "value");
 
 		// This hould not throw an SQL Exception
-		doWithConnection(dontThrowSqlExceptionAction, connectionProvider);
+		Object res = doWithConnection(dontThrowSqlExceptionAction,
+				connectionProvider);
 
 		try {
 			// check that the original action was called
 			verify(action).doWithConnection(connection);
+			assertEquals("value", res);
 		} catch (SQLException e) {
 			fail("Shouldn't happen");
 		}
