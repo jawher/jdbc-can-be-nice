@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public abstract class BaseChainableJdbcAction<T> implements
 		ChainableJdbcAction<T> {
 
-	public <S> ChainableJdbcAction<S> andReturn(final JdbcAction<S> action) {
+	public <S> ChainableJdbcAction<S> thenReturn(final JdbcAction<S> action) {
 		return new BaseChainableJdbcAction<S>() {
 
 			public S doWithConnection(Connection connection)
@@ -17,7 +17,7 @@ public abstract class BaseChainableJdbcAction<T> implements
 		};
 	}
 
-	public ChainableJdbcAction<T> andThen(final JdbcAction<?> action) {
+	public ChainableJdbcAction<T> then(final JdbcAction<?> action) {
 		return new BaseChainableJdbcAction<T>() {
 
 			public T doWithConnection(Connection connection)

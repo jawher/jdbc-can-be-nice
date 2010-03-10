@@ -336,8 +336,8 @@ public class JdbcCanBeNiceTest {
 		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
 		JdbcAction<String> action3 = mock(JdbcAction.class);
 
-		ChainableJdbcAction<Integer> action = sqlMakeChainable(action1)
-				.andThen(action2).andThen(action3);
+		ChainableJdbcAction<Integer> action = sqlMakeChainable(action1).then(
+				action2).then(action3);
 		try {
 			when(action1.doWithConnection(connection)).thenReturn(82);
 			when(action2.doWithConnection(connection)).thenReturn(true);
@@ -373,7 +373,7 @@ public class JdbcCanBeNiceTest {
 		JdbcAction<String> action3 = mock(JdbcAction.class);
 
 		ChainableJdbcAction<Boolean> action = sqlMakeChainable(action1)
-				.andReturn(action2).andThen(action3);
+				.thenReturn(action2).then(action3);
 		try {
 			when(action1.doWithConnection(connection)).thenReturn(82);
 			when(action2.doWithConnection(connection)).thenReturn(true);
@@ -409,8 +409,8 @@ public class JdbcCanBeNiceTest {
 		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
 		JdbcAction<String> action3 = mock(JdbcAction.class);
 
-		ChainableJdbcAction<String> action = sqlMakeChainable(action1).andThen(
-				action2).andReturn(action3);
+		ChainableJdbcAction<String> action = sqlMakeChainable(action1).then(
+				action2).thenReturn(action3);
 		try {
 			when(action1.doWithConnection(connection)).thenReturn(82);
 			when(action2.doWithConnection(connection)).thenReturn(true);
@@ -446,8 +446,8 @@ public class JdbcCanBeNiceTest {
 		JdbcAction<Boolean> action2 = mock(JdbcAction.class);
 		JdbcAction<String> action3 = mock(JdbcAction.class);
 
-		ChainableJdbcAction<String> action = sqlMakeChainable(action1).andReturn(
-				action2).andReturn(action3);
+		ChainableJdbcAction<String> action = sqlMakeChainable(action1)
+				.thenReturn(action2).thenReturn(action3);
 		try {
 			when(action1.doWithConnection(connection)).thenReturn(82);
 			when(action2.doWithConnection(connection)).thenReturn(true);

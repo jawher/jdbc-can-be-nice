@@ -1,7 +1,7 @@
 package org.nothing;
 
 public interface ChainableJdbcAction<T> extends JdbcAction<T> {
-	ChainableJdbcAction<T> andThen(JdbcAction<?> action);
+	ChainableJdbcAction<T> then(JdbcAction<?> action);
 
-	<S> ChainableJdbcAction<S> andReturn(JdbcAction<S> action);
+	<S> ChainableJdbcAction<S> thenReturn(JdbcAction<S> action);
 }
