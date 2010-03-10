@@ -327,7 +327,7 @@ public class JdbcCanBeNiceTest {
 	}
 
 	@Test
-	public void testChainig1() {
+	public void testChaining1() {
 		final Connection connection = mock(Connection.class);
 		ConnectionProvider connectionProvider = new ConnectionProvider() {
 
@@ -363,7 +363,7 @@ public class JdbcCanBeNiceTest {
 	}
 
 	@Test
-	public void testChainig2() {
+	public void testChaining2() {
 		final Connection connection = mock(Connection.class);
 		ConnectionProvider connectionProvider = new ConnectionProvider() {
 
@@ -400,7 +400,7 @@ public class JdbcCanBeNiceTest {
 	}
 
 	@Test
-	public void testChainig3() {
+	public void testChaining3() {
 		final Connection connection = mock(Connection.class);
 		ConnectionProvider connectionProvider = new ConnectionProvider() {
 
@@ -435,9 +435,9 @@ public class JdbcCanBeNiceTest {
 			fail("Shouldn't happen");
 		}
 	}
-	
+
 	@Test
-	public void testChainig4() {
+	public void testChaining4() {
 		final Connection connection = mock(Connection.class);
 		ConnectionProvider connectionProvider = new ConnectionProvider() {
 
@@ -472,5 +472,4 @@ public class JdbcCanBeNiceTest {
 			fail("Shouldn't happen");
 		}
 	}
-
 }
