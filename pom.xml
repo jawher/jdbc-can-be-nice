@@ -6,7 +6,12 @@
 	<packaging>jar</packaging>
 	<version>0.9-SNAPSHOT</version>
 	<name>jdbc-can-be-nice</name>
+	<description>This 'toy' library is not intended for large scale projects, but rather for quick hacking with jdbc, making it less painful and more pleasant to use by exposing a fluent API that hides the awful SQLException handling code and allows for easy chaining of operations</description>
 	<url>http://github.com/jawher/jdbc-can-be-nice</url>
+	<issueManagement>
+		<system>github</system>
+		<url>http://github.com/jawher/jdbc-can-be-nice/issues</url>
+	</issueManagement>
 	<inceptionYear>2009</inceptionYear>
 
 	<properties>
@@ -30,21 +35,18 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git://github.com/jawher/jdbc-can-be-nice.git</connection>
-		<developerConnection>scm:git:git://github.com/jawher/jdbc-can-be-nice.git</developerConnection>
+		<connection>scm:git:git://github.com/jawher/jdbc-can-be-nice.git
+		</connection>
+		<developerConnection>scm:git:git://github.com/jawher/jdbc-can-be-nice.git
+		</developerConnection>
+		<url>scm:git:git://github.com/jawher/jdbc-can-be-nice.git</url>
 	</scm>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-			<version>10.4.2.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -54,6 +56,14 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>Codehaus</id>
+			<name>Codehaus</name>
+			<url>http://repository.codehaus.org</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<plugins>
@@ -66,6 +76,63 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3.1</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.6.1</version>
+			</plugin>
 		</plugins>
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.0.1</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>dependencies</report>
+							<report>dependency-convergence</report>
+							<report>project-team</report>
+							<report>issue-tracking</report>
+							<report>license</report>
+							<report>scm</report>
+							<report>index</report>
+							<report>summary</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.6.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.3</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>2.3.1</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
