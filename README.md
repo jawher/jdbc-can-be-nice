@@ -67,6 +67,7 @@ Here is a sample showing the usage of many features of this library, like transa
 		"select name from table where age < ?", namesMapper, 20),
 		connectionProvider);
 
+
 License
 -------
 
