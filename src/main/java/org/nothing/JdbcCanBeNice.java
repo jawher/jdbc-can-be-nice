@@ -362,10 +362,12 @@ public class JdbcCanBeNice {
 					}
 					return res;
 				} finally {
-					try {
-						rs.close();
-					} catch (SQLException e1) {
+					if (rs != null) {
+						try {
+							rs.close();
+						} catch (SQLException e1) {
 
+						}
 					}
 					try {
 						ps.close();

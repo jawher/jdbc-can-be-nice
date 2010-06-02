@@ -327,6 +327,48 @@ public class JdbcCanBeNiceTest {
 	}
 
 	@Test
+	public void testSqlQueryInCaseOfAnException() {
+		final Connection connection = mock(Connection.class);
+		ConnectionProvider connectionProvider = new ConnectionProvider() {
+
+			public Connection get() throws SQLException {
+				return connection;
+			}
+		};
+
+		final RowMapper<Integer> dummyRowMapper = new RowMapper<Integer>() {
+			
+			public Integer mapRow(ResultSet resultSet, int row) throws SQLException {
+				return null;
+			}
+		};
+		
+		PreparedStatement preparedStatement = mock(PreparedStatement.class);
+		
+		String sql = "jdbc.can.be.nice";
+		SQLException sqlException = new SQLException(sql);
+		try {
+			
+
+			
+			when(preparedStatement.executeQuery()).thenThrow(sqlException);
+			when(connection.prepareStatement(sql))
+					.thenReturn(preparedStatement);
+			ChainableJdbcAction<List<Integer>> action = sqlQuery(sql,
+					dummyRowMapper, 1, true, "string");
+			try {
+				doWithConnection(action, connectionProvider);
+				fail("Should have thrown an exception");
+			} catch (RuntimeException e) {
+				assertEquals(e.getCause(), sqlException);
+			}
+			
+		} catch (SQLException e) {
+			fail("Shouldn't happen");
+		}
+	}
+
+	@Test
 	public void testChaining1() {
 		final Connection connection = mock(Connection.class);
 		ConnectionProvider connectionProvider = new ConnectionProvider() {
